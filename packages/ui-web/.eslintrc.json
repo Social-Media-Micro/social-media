@@ -1,0 +1,9 @@
+{
+  "extends": ["next", "next/core-web-vitals", "plugin:prettier/recommended"],
+  "rules": {
+    "no-extra-boolean-cast": "off", // Allow !!foo expressions
+    "prettier/prettier": "error", // Ensure Prettier formatting rules are enforced
+    "quotes": ["error", "double"], // Enforce double quotes
+    "semi": ["error", "always"] // Enforce semicolons
+  }
+}

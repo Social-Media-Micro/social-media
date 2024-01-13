@@ -1,0 +1,20 @@
+{
+  "name": "@monorepo/base",
+  "version": "1.0.0",
+  "description": "Monorepo Root",
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "yarn workspaces foreach --exclude @passes/ui-internal -pvi run dev"
+  },
+  "packageManager": "yarn@3.6.4",
+  "resolutions": {
+    "@types/react": "18.0.20"
+  }
+}

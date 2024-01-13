@@ -1,0 +1,40 @@
+{
+  "name": "@monorepo/ui-web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "prettier:check": "prettier --check .",
+    "prettier:fix": "prettier --write .",
+    "eslint:check": "eslint --ext .js,.jsx,.ts,.tsx .",
+    "eslint:fix": "eslint --ext .js,.jsx,.ts,.tsx . --fix"
+  },
+  "dependencies": {
+    "@monorepo/api-client": "1.0.0",
+    "@monorepo/shared-constants": "1.0.0",
+    "@monorepo/ui-core": "1.0.0",
+    "@svgr/webpack": "^8.1.0",
+    "next": "14.0.1",
+    "react": "^18",
+    "react-dom": "^18",
+    "react-redux": "^8.1.3",
+    "swr": "^2.2.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "@typescript-eslint/eslint-plugin": "^6.10.0",
+    "@typescript-eslint/parser": "^6.10.0",
+    "autoprefixer": "^10.0.1",
+    "eslint": "^8.53.0",
+    "eslint-config-next": "^14.0.1",
+    "postcss": "^8",
+    "prettier": "^3.0.3",
+    "tailwindcss": "^3.3.0",
+    "typescript": "^5"
+  }
+}

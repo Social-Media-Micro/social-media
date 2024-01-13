@@ -1,0 +1,19 @@
+{
+  "references": [
+    {
+      "path": "./packages/api"
+    },
+    {
+      "path": "./packages/api-client"
+    },
+    {
+      "path": "./packages/shared-constants"
+    },
+    {
+      "path": "./packages/ui-core"
+    },
+    {
+      "path": "./packages/ui-web"
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 {
   "references": [
     {
-      "path": "./packages/api"
+      "path": "./packages/auth-service"
     },
     {
       "path": "./packages/api-client"

@@ -13,9 +13,7 @@ dotenv.config({
 const PORT = process.env.PORT ?? 4000;
 
 // database connection
-const db = new Database(
-  process.env.mongoURI ?? "mongodb://0.0.0.0:27017/social-media",
-);
+const db = new Database("mongodb://auth-mongo-srv:27017/auth");
 db.connect();
 
 // email service
@@ -45,8 +43,15 @@ app.use((_req, res, next) => {
   next();
 });
 
-app.get("/", (_req, res) => {
-  res.sendSuccess200Response("Yay!🚀", null);
+app.get("/api/auth/health-check", (_req, res) => {
+  res.sendSuccess200Response(
+    "Yay auth service is running successfully!🚀",
+    null,
+  );
+});
+
+app.use("/*", (_req, res) => {
+  res.sendNotFound404Response("Route not found", { msg: "Invalid route" });
 });
 
 // routes

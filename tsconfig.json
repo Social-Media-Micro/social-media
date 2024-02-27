@@ -7,6 +7,9 @@
       "path": "./packages/api-client"
     },
     {
+      "path": "./packages/common"
+    },
+    {
       "path": "./packages/shared-constants"
     },
     {

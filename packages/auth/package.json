@@ -15,6 +15,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@monorepo/common": "1.0.0",
     "bcrypt": "^5.1.1",
     "chalk": "4.1.2",
     "dotenv": "^16.3.1",

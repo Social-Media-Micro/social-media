@@ -1,0 +1,19 @@
+{
+  "name": "@monorepo/common",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "author": "",
+  "type": "module",
+  "scripts": {
+    "build": "tsc"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "kafkajs": "^2.2.4",
+    "typescript": "^5.3.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.8.10"
+  }
+}

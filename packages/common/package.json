@@ -4,14 +4,14 @@
   "description": "",
   "private": true,
   "author": "",
-  "type": "module",
   "scripts": {
     "build": "tsc"
   },
   "license": "ISC",
   "dependencies": {
     "kafkajs": "^2.2.4",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "ulid": "^2.3.0"
   },
   "devDependencies": {
     "@types/node": "^20.8.10"

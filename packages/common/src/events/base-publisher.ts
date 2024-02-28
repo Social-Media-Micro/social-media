@@ -1,30 +1,23 @@
 import { Topics } from "./topics";
 import { Kafka, Producer } from "kafkajs";
+import { ulid } from "ulid";
 interface Event {
   topic: Topics;
-  data: {
-    key: string;
-    value: any;
-  };
+  data: any;
 }
-
-function isValidTopic(topic: string): topic is Topics {
-  return Object.values(Topics).includes(topic as Topics); // Type assertion safe here
-}
-
 export abstract class Publisher<T extends Event> {
-  abstract topic: T["topic"];
+  abstract topic: Topics;
   protected client: Kafka;
   protected producer: Producer;
 
   constructor(client: Kafka) {
     this.client = client;
-    this.createProducer(client);
   }
 
   async createProducer(client: Kafka) {
     if (!this.producer) {
       const producer = client.producer();
+      console.log("Connecting Producer...");
       await producer.connect();
       this.producer = producer;
       console.log("Producer Connected Successfully");
@@ -32,37 +25,26 @@ export abstract class Publisher<T extends Event> {
   }
 
   async publish(data: T["data"]): Promise<void> {
-    await this.ensureTopicExists();
+    await this.createProducer(this.client);
     return new Promise(async (resolve, reject) => {
       try {
         const producer = this.producer;
+        console.log("Publishing event...", {
+          topic: this.topic,
+          messages: [{ key: ulid(), value: JSON.stringify(data) }],
+        });
         await producer.send({
           topic: this.topic,
-          messages: [{ key: data.key, value: JSON.stringify(data.value) }],
+          messages: [{ key: ulid(), value: JSON.stringify(data) }],
         });
         console.log(
           `Published Successfully at topic: ${this.topic} with key: ${data.key}`
         );
         resolve();
       } catch (error) {
+        console.log(error);
         reject(error);
       }
     });
-  }
-
-  protected async ensureTopicExists(): Promise<void> {
-    if (!isValidTopic(this.topic)) {
-      throw new Error(`Invalid topic: ${this.topic}`);
-    }
-
-    const admin = this.client.admin();
-    await admin.connect();
-
-    if (!(await admin.listTopics()).includes(this.topic)) {
-      await admin.createTopics({ topics: [{ topic: this.topic }] });
-      console.log(`Created topic: ${this.topic}`);
-    }
-
-    await admin.disconnect();
   }
 }

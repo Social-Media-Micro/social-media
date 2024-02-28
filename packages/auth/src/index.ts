@@ -7,6 +7,7 @@ import emailService from "./utils/emailService";
 import fileUpload from "express-fileupload";
 import logger from "./utils/logger";
 import setupGlobalCustomMiddleware from "./middleware";
+import { kafkaWrapper } from "./kafkaWrapper";
 dotenv.config({
   path: path.resolve(process.cwd(), "/.env"),
 });
@@ -50,15 +51,14 @@ app.get("/api/auth/health-check", (_req, res) => {
   );
 });
 
+// routes
+router.forEach((route) => {
+  app.use(`/api/auth/v1${route.prefix}`, route.router);
+});
 app.use("/*", (_req, res) => {
   res.sendNotFound404Response("Route not found", { msg: "Invalid route" });
 });
-
-// routes
-router.forEach((route) => {
-  app.use(`/api/v1${route.prefix}`, route.router);
-});
-
 app.listen(PORT, () => {
+  kafkaWrapper.connect("auth-service");
   logger.info(`Server is running 🚀🚀🚀🚀 http://localhost:${PORT}`);
 });

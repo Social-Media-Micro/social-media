@@ -16,14 +16,9 @@
     "outDir": "./dist",
     "baseUrl": "./",
     "incremental": true,
-    "composite": true,
     "strictNullChecks": true,
     "skipLibCheck": true,
-    "typeRoots": [
-      "../../node_modules/@types",
-      "./node_modules/@types",
-      "../../node_modules/@monorepo"
-    ],
+    "typeRoots": ["../../node_modules/@types", "./node_modules/@types"],
     "paths": {
       "@monorepo/common/*": ["../common/*"]
     }

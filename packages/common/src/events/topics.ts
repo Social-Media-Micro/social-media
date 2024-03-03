@@ -1,4 +1,4 @@
 export enum Topics {
-  UserCreated = "user:created",
+  UserCreated = "user-created",
   UserUpdated = "user:updated",
 }

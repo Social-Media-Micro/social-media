@@ -12,7 +12,7 @@ export class KafkaWrapper {
   connect(clientId: string) {
     this._client = new Kafka({
       clientId,
-      brokers: ["kafka-srv:9092"],
+      brokers: ["203.190.153.26:9092"],
     });
   }
 }

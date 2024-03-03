@@ -4,7 +4,7 @@ metadata:
   name: auth-depl
 spec:
   replicas: 1
-  selector: 
+  selector:
     matchLabels:
       app: auth
   template:
@@ -15,10 +15,32 @@ spec:
       containers:
         - name: auth
           image: muddledluck170/auth
+          env:
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: my-secret
+                  key: POSTGRES_USER
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: my-secret
+                  key: POSTGRES_PASSWORD
+            - name: JWT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: my-secret
+                  key: JWT_KEY
+            - name: DB_HOST
+              value: "auth-postgres-srv"
+            - name: PORT
+              value: 5432
+            - name: database
+              value: "auth-srv"
 ---
 apiVersion: v1
 kind: Service
-metadata: 
+metadata:
   name: auth-srv
 spec:
   selector:
@@ -28,4 +50,3 @@ spec:
       protocol: TCP
       port: 4000
       targetPort: 4000
-  

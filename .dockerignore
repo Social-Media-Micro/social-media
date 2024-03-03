@@ -3,3 +3,4 @@ yarn.lock
 .github
 .git
 logs
+.env

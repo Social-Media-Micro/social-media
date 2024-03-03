@@ -32,11 +32,11 @@ spec:
                   name: my-secret
                   key: JWT_KEY
             - name: DB_HOST
-              value: "auth-postgres-srv"
-            - name: PORT
-              value: 5432
-            - name: database
-              value: "auth-srv"
+              value: 'auth-postgres-srv'
+            - name: DB_PORT
+              value: '5432'
+            - name: DB_DATABASE
+              value: 'postgres'
 ---
 apiVersion: v1
 kind: Service

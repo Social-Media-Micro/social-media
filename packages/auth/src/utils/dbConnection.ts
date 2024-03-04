@@ -1,8 +1,11 @@
+import "reflect-metadata";
 import { DataSource } from "typeorm";
 import logger from "./logger";
+import { UserEntity } from "../entity/userEntity";
 
 class Database {
   private readonly _AppDataSource: DataSource;
+
   constructor() {
     this._AppDataSource = new DataSource({
       type: "postgres",
@@ -12,6 +15,7 @@ class Database {
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
       migrations: [`${process.cwd()}/migration/*.ts`],
+      entities: [UserEntity],
     });
   }
 
@@ -32,4 +36,5 @@ class Database {
 }
 
 const db = new Database();
-export default db;
+db.connect();
+export const AppDataSource = db.AppDataSource;

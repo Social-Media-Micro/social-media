@@ -1,6 +1,7 @@
+import "reflect-metadata";
+import "./utils/dbConnection";
 import express from "express";
-import db from "./utils/dbConnection";
-// import router from "./router";
+import router from "./router";
 import path from "path";
 import fileUpload from "express-fileupload";
 import logger from "./utils/logger";
@@ -8,9 +9,6 @@ import setupGlobalCustomMiddleware from "./middleware";
 import { kafkaWrapper } from "./kafkaWrapper";
 
 const PORT = process.env.PORT ?? 4000;
-
-// database connection
-db.connect();
 
 const app = express();
 app.use(express.json());
@@ -43,9 +41,10 @@ app.get("/api/auth/health-check", (_req, res) => {
 });
 
 // routes
-// router.forEach((route) => {
-//   app.use(`/api/auth/v1${route.prefix}`, route.router);
-// });
+router.forEach((route) => {
+  app.use(`/api/auth/v1${route.prefix}`, route.router);
+});
+
 app.use("/*", (_req, res) => {
   res.sendNotFound404Response("Route not found", { msg: "Invalid route" });
 });

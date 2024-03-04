@@ -7,6 +7,10 @@
     "start:dev": "tsnd --trace-warnings --respawn --transpile-only --exit-child src/index.ts",
     "start:build": "node ./dist/src/index.js",
     "build": "tsc -p .",
+    "migrate:create": "typeorm migration:create ./src/migrations/user",
+    "migrate:generate": "npx typeorm-ts-node-esm migration:generate ./src/migrations/user -d ./dist/src/utils/dbConnection.js",
+    "migrate:run": "typeorm migration:run",
+    "migrate:revert": "typeorm migration:revert",
     "prettier:check": "prettier --check **/*.ts",
     "prettier:fix": "prettier --write **/*.ts",
     "eslint:check": "eslint **/*.ts",
@@ -47,7 +51,7 @@
     "eslint-plugin-prettier": "^5.0.1",
     "eslint-plugin-promise": "^6.0.0",
     "prettier": "^3.0.3",
-    "ts-node": "^10.9.1",
+    "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0"
   }
 }

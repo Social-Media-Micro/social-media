@@ -2,6 +2,7 @@ import { type Request, type Response } from "express";
 import { UserService } from "../user/user.service";
 import { kafkaWrapper } from "../../kafkaWrapper";
 import { UserCreatedPublisher } from "../../events/user-created-publisher";
+import { UserDto } from "../../dto/user.dto";
 
 class AuthController {
   private readonly userService: UserService;
@@ -11,18 +12,19 @@ class AuthController {
 
   public createUser = async (req: Request, res: Response) => {
     try {
-      const user = await this.userService.create(req.body);
+      const userDto = new UserDto(req.body);
+      const user = await this.userService.create(userDto);
       // publish event
       const kafka = kafkaWrapper.client;
       const publisher = new UserCreatedPublisher(kafka);
       await publisher.publish({
-        id: user._id,
+        id: user.id,
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
-        mobileNumber: "user.mobileNumber",
+        mobileNumber: user.mobileNumber,
         username: user.username,
-        version: "user.version",
+        version: user.version,
       });
       res.sendCreated201Response("User created successfully", user);
     } catch (error) {

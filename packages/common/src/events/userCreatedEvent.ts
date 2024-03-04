@@ -9,6 +9,6 @@ export interface UserCreatedEvent {
     email: string;
     mobileNumber: string;
     username: string;
-    version: string;
+    version: number;
   };
 }

@@ -1,5 +1,4 @@
 import "reflect-metadata";
-import "./utils/dbConnection";
 import express from "express";
 import router from "./router";
 import path from "path";
@@ -7,12 +6,16 @@ import fileUpload from "express-fileupload";
 import logger from "./utils/logger";
 import setupGlobalCustomMiddleware from "./middleware";
 import { kafkaWrapper } from "./kafkaWrapper";
+import db from "./utils/dbConnection";
 
 const PORT = process.env.PORT ?? 4000;
 
 const app = express();
 app.use(express.json());
 app.use(express.static(path.join(process.cwd(), "./public")));
+
+// db connection
+db.connect();
 
 // Setup custom middleware
 setupGlobalCustomMiddleware(app);

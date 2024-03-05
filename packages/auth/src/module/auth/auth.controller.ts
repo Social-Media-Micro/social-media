@@ -1,34 +1,39 @@
 import { type Request, type Response } from "express";
 import { UserService } from "../user/user.service";
-import { kafkaWrapper } from "../../kafkaWrapper";
-import { UserCreatedPublisher } from "../../events/user-created-publisher";
+
 import { UserDto } from "../../dto/user.dto";
+import { AuthService } from "./auth.service";
+import { type CreateSessionType } from "./auth.types";
 
 class AuthController {
-  private readonly userService: UserService;
-  constructor() {
-    this.userService = new UserService();
-  }
+  private readonly _userService: UserService = new UserService();
+  private readonly _authService: AuthService = new AuthService();
 
   public createUser = async (req: Request, res: Response) => {
     try {
       const userDto = new UserDto(req.body);
-      const user = await this.userService.create(userDto);
-      // publish event
-      const kafka = kafkaWrapper.client;
-      const publisher = new UserCreatedPublisher(kafka);
-      await publisher.publish({
-        id: user.id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        mobileNumber: user.mobileNumber,
-        username: user.username,
-        version: user.version,
+      const user = await this._userService.create(userDto);
+      const payload: CreateSessionType = {
+        user,
+        ip:
+          req.ip ??
+          (req.headers["X-Forwarded-For"]
+            ? req.headers["X-Forwarded-For"][0]
+            : ""),
+        userAgent: req.headers["user-agent"] ?? "",
+      };
+      const { accessToken, refreshToken } =
+        await this._authService.createSession(payload);
+      res.sendCreated201Response("User created successfully", {
+        accessToken,
+        refreshToken,
       });
-      res.sendCreated201Response("User created successfully", user);
     } catch (error) {
-      res.sendErrorResponse("Error creating user", error);
+      if (error.statusCode) {
+        res.sendBadRequest400Response("Error creating user", error.message);
+      } else {
+        res.sendErrorResponse("Error creating user", error);
+      }
     }
   };
 }

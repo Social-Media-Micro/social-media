@@ -1,17 +1,10 @@
-import {
-  BeforeInsert,
-  BeforeUpdate,
-  Column,
-  Entity,
-  PrimaryGeneratedColumn,
-} from "typeorm";
+import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany } from "typeorm";
 import bcrypt from "bcrypt";
+import { CustomBaseEntity } from "./baseEntity";
+import { UserSessionEntity } from "./userSessionEntity";
 
 @Entity()
-export class UserEntity {
-  @PrimaryGeneratedColumn("uuid")
-  id: string;
-
+export class UserEntity extends CustomBaseEntity {
   @Column({ nullable: false })
   firstName: string;
 
@@ -21,11 +14,11 @@ export class UserEntity {
   @Column({ nullable: false, unique: true })
   email: string;
 
-  @Column()
+  @Column({ nullable: true })
   mobileNumber: string;
 
   @Column({ default: false })
-  isVarified: boolean;
+  isVerifiedEmail: boolean;
 
   @Column({ default: false })
   isBanned: boolean;
@@ -42,20 +35,8 @@ export class UserEntity {
   @Column({ nullable: true })
   lastActive: string;
 
-  @Column({ default: 1 })
-  version: number;
-
-  @Column({ default: new Date() })
-  createdAt: Date;
-
-  @Column({ default: new Date() })
-  updatedAt: Date;
-
-  @BeforeUpdate()
-  async updateVersion() {
-    this.version++; // Increment version on update
-    this.updatedAt = new Date();
-  }
+  @OneToMany(() => UserSessionEntity, (userSession) => userSession.user)
+  userSession: UserSessionEntity[];
 
   @BeforeUpdate()
   @BeforeInsert()

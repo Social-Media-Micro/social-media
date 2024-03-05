@@ -2,6 +2,7 @@ import "reflect-metadata";
 import { DataSource } from "typeorm";
 import logger from "./logger";
 import { UserEntity } from "../entity/userEntity";
+import { UserSessionEntity } from "../entity/userSessionEntity";
 
 class Database {
   private readonly _AppDataSource: DataSource;
@@ -14,8 +15,9 @@ class Database {
       username: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
-      migrations: [`${process.cwd()}/migration/*.ts`],
-      entities: [UserEntity],
+      entities: [UserEntity, UserSessionEntity],
+      synchronize: true, // !TODO: not recomanded for production
+      logging: true,
     });
   }
 
@@ -36,5 +38,4 @@ class Database {
 }
 
 const db = new Database();
-db.connect();
-export const AppDataSource = db.AppDataSource;
+export default db;

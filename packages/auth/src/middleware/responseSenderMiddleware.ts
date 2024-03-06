@@ -1,5 +1,5 @@
 import { type Response } from "express";
-import logger from "../utils/logger";
+import logger from "@monorepo/common/src/utils/logger";
 export interface ResponseType {
   status: number;
   message: string;

@@ -1,4 +1,4 @@
-import { Topics } from "./topics";
+import { type Topics } from "./topics";
 
 export interface UserCreatedEvent {
   topic: Topics.UserCreated;

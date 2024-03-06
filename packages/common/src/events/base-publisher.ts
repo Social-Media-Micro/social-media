@@ -1,5 +1,6 @@
-import { Topics } from "./topics";
-import { Kafka, Producer } from "kafkajs";
+import { type Topics } from "./topics";
+import { type Kafka, type Producer } from "kafkajs";
+import logger from "../utils/logger";
 import { ulid } from "ulid";
 interface Event {
   topic: Topics;
@@ -17,54 +18,43 @@ export abstract class Publisher<T extends Event> {
   async createProducer(client: Kafka) {
     if (!this.producer) {
       const producer = client.producer();
-      console.log("Connecting Producer...");
+      logger.info("Connecting Producer...");
       await producer.connect();
       this.producer = producer;
-      console.log("Producer Connected Successfully");
+      logger.info("Producer Connected Successfully");
     }
   }
-  async createTopic() {
-    // !TODO need to update this code to make dynamic topics
+
+  async createTopic(topic: Topics) {
     const admin = this.client.admin();
     try {
       await admin.connect();
-      const oldTOpics = await admin.listTopics();
-      console.log("Old Topics List: ", oldTOpics);
       await admin.createTopics({
-        topics: [{ topic: "user-created", numPartitions: 2 }],
+        topics: [{ topic, numPartitions: 2 }],
       });
-      console.log("Topic created successfully");
-      const newTOpics = await admin.listTopics();
-      console.log("Old Topics List: ", newTOpics);
+      logger.info("Created Topic successfully");
     } catch (error) {
-      console.error("Error creating topic:", error);
+      logger.error("Error creating topic:", error);
     } finally {
       await admin.disconnect();
     }
   }
 
   async publish(data: T["data"]): Promise<void> {
-    await this.createTopic();
-    await this.createProducer(this.client);
-    return new Promise(async (resolve, reject) => {
-      try {
-        const producer = this.producer;
-        console.log("Publishing event...", {
-          topic: this.topic,
-          messages: [{ key: ulid(), value: JSON.stringify(data) }],
-        });
-        await producer.send({
-          topic: this.topic,
-          messages: [{ key: ulid(), value: JSON.stringify(data) }],
-        });
-        console.log(
-          `Published Successfully at topic: ${this.topic} with key: ${data.key}`
-        );
-        resolve();
-      } catch (error) {
-        console.log(error);
-        reject(error);
-      }
-    });
+    try {
+      await this.createProducer(this.client);
+      const producer = this.producer;
+      const key = ulid();
+      await producer.send({
+        topic: this.topic,
+        messages: [{ key, value: JSON.stringify(data) }],
+      });
+      logger.info(
+        `Published Successfully at topic: ${this.topic} with key: ${key}`,
+      );
+    } catch (error) {
+      logger.error(error);
+      throw error;
+    }
   }
 }

@@ -23,7 +23,7 @@
       "@monorepo/common/*": ["../common/*"]
     }
   },
-  "include": ["src/**/*.ts", "index.d.ts", ".eslintrc.js"],
+  "include": ["src/**/*.ts", "index.d.ts", ".eslintrc.js", "../common/src/utils/jwt.ts", "src/utils/joiValidator.ts"],
   "ts-node": {
     "files": true
   },

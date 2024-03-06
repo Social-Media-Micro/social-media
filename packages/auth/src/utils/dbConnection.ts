@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import { DataSource } from "typeorm";
-import logger from "./logger";
+import logger from "@monorepo/common/src/utils/logger";
 import { UserEntity } from "../entity/userEntity";
 import { UserSessionEntity } from "../entity/userSessionEntity";
 

@@ -3,10 +3,10 @@ import express from "express";
 import router from "./router";
 import path from "path";
 import fileUpload from "express-fileupload";
-import logger from "./utils/logger";
 import setupGlobalCustomMiddleware from "./middleware";
 import { kafkaWrapper } from "./kafkaWrapper";
 import db from "./utils/dbConnection";
+import logger from "@monorepo/common/src/utils/logger";
 
 const PORT = process.env.PORT ?? 4000;
 

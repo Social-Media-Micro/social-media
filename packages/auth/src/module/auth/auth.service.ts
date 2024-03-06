@@ -6,7 +6,7 @@ import {
 import { UserSessionEntity } from "../../entity/userSessionEntity";
 import db from "../../utils/dbConnection";
 import { type FindOptionsWhere } from "typeorm";
-import JwtService from "../../utils/jwt";
+import JwtService from "@monorepo/common/src/utils/jwt";
 import { UserService } from "../user/user.service";
 import { type UserEntity } from "../../entity/userEntity";
 

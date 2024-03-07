@@ -1,28 +1,21 @@
+import "reflect-metadata";
 import express from "express";
-import dotenv from "dotenv";
-import { Database } from "./utils/dbConnection";
 import router from "./router";
 import path from "path";
-import emailService from "./utils/emailService";
 import fileUpload from "express-fileupload";
-import logger from "./utils/logger";
 import setupGlobalCustomMiddleware from "./middleware";
-dotenv.config({
-  path: path.resolve(process.cwd(), "/.env"),
-});
+import { kafkaWrapper } from "./kafkaWrapper";
+import db from "./utils/dbConnection";
+import logger from "@monorepo/common/src/utils/logger";
+
 const PORT = process.env.PORT ?? 4000;
-
-// database connection
-const db = new Database("mongodb://auth-mongo-srv:27017/auth");
-db.connect();
-
-// email service
-void emailService.init();
-void emailService.verifyConnection();
 
 const app = express();
 app.use(express.json());
 app.use(express.static(path.join(process.cwd(), "./public")));
+
+// db connection
+db.connect();
 
 // Setup custom middleware
 setupGlobalCustomMiddleware(app);
@@ -50,15 +43,15 @@ app.get("/api/auth/health-check", (_req, res) => {
   );
 });
 
+// routes
+router.forEach((route) => {
+  app.use(`/api/auth/v1${route.prefix}`, route.router);
+});
+
 app.use("/*", (_req, res) => {
   res.sendNotFound404Response("Route not found", { msg: "Invalid route" });
 });
-
-// routes
-router.forEach((route) => {
-  app.use(`/api/v1${route.prefix}`, route.router);
-});
-
 app.listen(PORT, () => {
+  kafkaWrapper.connect("auth-service");
   logger.info(`Server is running 🚀🚀🚀🚀 http://localhost:${PORT}`);
 });

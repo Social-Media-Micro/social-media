@@ -1,7 +1,5 @@
 {
   "compilerOptions": {
-    /* Visit https://aka.ms/tsconfig to read more about this file */
-
     "module": "commonjs",
     "declaration": true,
     "removeComments": true,
@@ -18,19 +16,10 @@
     "incremental": true,
     "strictNullChecks": true,
     "skipLibCheck": true,
+    "noImplicitAny": true,
     "typeRoots": ["../../node_modules/@types", "./node_modules/@types"],
-    "paths": {
-      "@monorepo/common/*": ["../common/*"]
-    }
+    "composite": true
   },
-  "include": ["src/**/*.ts", "index.d.ts", ".eslintrc.js", "../common/src/utils/jwt.ts", "src/utils/joiValidator.ts"],
-  "ts-node": {
-    "files": true
-  },
-  "exclude": ["dist"],
-  "watchOptions": {
-    "watchFile": "useFsEvents",
-    "watchDirectory": "useFsEvents",
-    "fallbackPolling": "dynamicPriority"
-  }
+  "include": ["src", "../auth/src/utils/joiValidator.ts"],
+  "exclude": ["dist"]
 }

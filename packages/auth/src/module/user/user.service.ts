@@ -18,7 +18,7 @@ export class UserService {
   public async findOneWithOptions(
     options: FindOptionsWhere<UserEntity>,
   ): Promise<UserEntity | null> {
-    const user = await this._userRepository.findOneBy(options);
+    const user = await this._userRepository.findOne({ where: options });
     return user;
   }
 

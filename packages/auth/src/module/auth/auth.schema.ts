@@ -7,3 +7,12 @@ export const createUserBodyValidator = Joi.object({
   firstName: Joi.string().required(),
   lastName: Joi.string().required(),
 });
+
+export const createUserSessionBodyValidator = Joi.object({
+  email: Joi.string().email().required(),
+  password: Joi.string().required(),
+});
+
+export const refreshAccessTokenViaRefreshTokenBodyValidator = Joi.object({
+  refreshToken: Joi.string().required(),
+});

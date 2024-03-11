@@ -1,7 +1,9 @@
 import {
+  type JwtRefreshTokenClaims,
   type CreateSessionType,
   type JwtAccessTokenPayload,
   type JwtRefreshTokenPayload,
+  type JwtAccessTokenClaims,
 } from "./auth.types";
 import { UserSessionEntity } from "../../entity/userSessionEntity";
 import db from "../../utils/dbConnection";
@@ -9,6 +11,8 @@ import { type FindOptionsWhere } from "typeorm";
 import JwtService from "@monorepo/common/src/utils/jwt";
 import { UserService } from "../user/user.service";
 import { type UserEntity } from "../../entity/userEntity";
+import { InvalidRefreshTokenError, SessionExpiredError } from "./auth.errors";
+import { UserNotFound } from "../user/user.errors";
 
 export class AuthService {
   private readonly _jwtService = new JwtService();
@@ -20,7 +24,10 @@ export class AuthService {
   public async findUserSessionWith(
     options: FindOptionsWhere<UserSessionEntity>,
   ): Promise<UserSessionEntity | null> {
-    const user = await this._userSessionRepositry.findOneBy(options);
+    const user = await this._userSessionRepositry.findOne({
+      where: options,
+      relations: { user: true },
+    });
     return user;
   }
 
@@ -75,5 +82,64 @@ export class AuthService {
     return this._jwtService.sign(payload, {
       expiresIn: process.env.JWT_REFRESH_TOKEN_TTL,
     });
+  }
+
+  public async getAccessTokenFromRefreshToken(refreshToken: string) {
+    // Verify refreshToken
+    const decoded = this._jwtService.verify(
+      refreshToken,
+    ) as JwtRefreshTokenClaims;
+    if (!decoded) {
+      throw new InvalidRefreshTokenError();
+    }
+    const { sessionId } = decoded;
+    const userSession = await this.findUserSessionWith({
+      id: sessionId,
+    });
+    if (!userSession?.isValidSession) {
+      throw new SessionExpiredError();
+    }
+    // Generate accessToken
+    const userDetails = await this._userService.findOneWithOptions({
+      id: userSession.user.id,
+    });
+    if (userDetails) {
+      const accessTokenPayload: JwtAccessTokenPayload = {
+        sessionId: userSession.id,
+        userId: userDetails.id,
+        isVerifiedEmail: userDetails.isVerifiedEmail,
+        isBanned: userDetails.isBanned,
+      };
+      const accessToken = this.createAccessToken(accessTokenPayload);
+      return accessToken;
+    }
+    throw new UserNotFound("User with refresh token is not exist");
+  }
+
+  public verifyAccessToken(token: string): JwtAccessTokenClaims | null {
+    try {
+      const decoded = this._jwtService.verify(token) as JwtAccessTokenClaims;
+      return decoded;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  public async logoutSession(sessionId: string) {
+    try {
+      const session = await this.findUserSessionWith({
+        id: sessionId,
+      });
+      if (!session) {
+        throw new Error("Session not found");
+      }
+      // Update session details
+      session.isValidSession = false;
+      session.expiresAt = new Date();
+      await this._userSessionRepositry.save(session);
+      return session;
+    } catch (error) {
+      throw new Error(`Error updating session: ${error.message}`);
+    }
   }
 }

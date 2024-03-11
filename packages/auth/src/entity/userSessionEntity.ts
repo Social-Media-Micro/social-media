@@ -7,6 +7,9 @@ export class UserSessionEntity extends CustomBaseEntity {
   @Column()
   ip: string;
 
+  @Column({ default: true })
+  isValidSession: boolean;
+
   @Column({ nullable: true })
   expiresAt: Date;
 

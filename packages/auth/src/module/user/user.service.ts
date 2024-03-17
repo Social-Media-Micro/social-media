@@ -10,11 +10,16 @@ import {
 import { kafkaWrapper } from "../../kafkaWrapper";
 import { UserCreatedPublisher } from "../../events/user-created-publisher";
 import bcrypt from "bcrypt";
+import { SendRegistrationOtpPublisher } from "../../events/send-registration-otp-publisher";
+import OtpGenerator from "@monorepo/common/src/utils/otpGenerator";
+import redisConnect from "../../utils/redisConnection";
+import registrationOtpKey from "@monorepo/common/src/redisKey/registrationOtp";
+import logger from "@monorepo/common/src/utils/logger";
 
 export class UserService {
   private readonly _DataSource = db.AppDataSource;
+  private readonly _redisClient = redisConnect.client;
   private readonly _userRepository = this._DataSource.getRepository(UserEntity);
-
   public async findOneWithOptions(
     options: FindOptionsWhere<UserEntity>,
   ): Promise<UserEntity | null> {
@@ -22,7 +27,19 @@ export class UserService {
     return user;
   }
 
-  public async create(user: UserDto): Promise<UserEntity> {
+  public async findByIdAndUpdate(userId: string, body: Partial<UserEntity>) {
+    const user = await this._userRepository.findOneBy({ id: userId });
+    if (user) {
+      await this._userRepository.update({ id: userId }, body);
+      return await this._userRepository.findOneBy({ id: userId });
+    }
+    return null;
+  }
+
+  public async create(
+    user: UserDto,
+    isVerifiedEmail: boolean = false,
+  ): Promise<UserEntity> {
     const existingUserWithEmail = await this.findOneWithOptions({
       email: user.email,
     });
@@ -41,15 +58,16 @@ export class UserService {
     newUser.email = user.email;
     newUser.password = user.password;
     newUser.username = user.username;
+    newUser.isVerifiedEmail = isVerifiedEmail;
     if (user.mobileNumber) newUser.mobileNumber = user.mobileNumber;
 
     await this._userRepository.save(newUser);
 
     // publish event
     const kafka = kafkaWrapper.client;
-    const publisher = new UserCreatedPublisher(kafka);
-    await publisher.publish({
-      id: user.id,
+    const createUserPublisher = new UserCreatedPublisher(kafka);
+    await createUserPublisher.publish({
+      id: newUser.id,
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
@@ -57,6 +75,19 @@ export class UserService {
       username: user.username,
       version: user.version,
     });
+
+    const sendRegistrationOtpPublisher = new SendRegistrationOtpPublisher(
+      kafka,
+    );
+    const otpGenerator = new OtpGenerator();
+    const otp = otpGenerator.numberGenerate(6);
+    const redisKey = registrationOtpKey(newUser.id);
+    try {
+      await this._redisClient.setEx(redisKey, 900, otp);
+      await sendRegistrationOtpPublisher.publish({ otp });
+    } catch (error) {
+      logger.error("Error saving otp in radis");
+    }
 
     return newUser;
   }

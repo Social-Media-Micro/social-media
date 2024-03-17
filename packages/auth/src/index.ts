@@ -6,6 +6,7 @@ import fileUpload from "express-fileupload";
 import setupGlobalCustomMiddleware from "./middleware";
 import { kafkaWrapper } from "./kafkaWrapper";
 import db from "./utils/dbConnection";
+import redisConnect from "./utils/redisConnection";
 import logger from "@monorepo/common/src/utils/logger";
 
 const PORT = process.env.PORT ?? 4000;
@@ -16,6 +17,9 @@ app.use(express.static(path.join(process.cwd(), "./public")));
 
 // db connection
 db.connect();
+
+// redis connection
+void redisConnect.connect();
 
 // Setup custom middleware
 setupGlobalCustomMiddleware(app);

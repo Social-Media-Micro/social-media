@@ -13,10 +13,15 @@ import { UserService } from "../user/user.service";
 import { type UserEntity } from "../../entity/userEntity";
 import { InvalidRefreshTokenError, SessionExpiredError } from "./auth.errors";
 import { UserNotFound } from "../user/user.errors";
+import registrationOtpKey from "@monorepo/common/src/redisKey/registrationOtp";
+import redisConnect from "../../utils/redisConnection";
+import { kafkaWrapper } from "src/kafkaWrapper";
+import { EmailVerifiedSuccessfullyPublisher } from "src/events/email-verified-successfully";
 
 export class AuthService {
   private readonly _jwtService = new JwtService();
   private readonly _userService = new UserService();
+  private readonly _redisClient = redisConnect.client;
   private readonly _DataSource = db.AppDataSource;
   private readonly _userSessionRepositry =
     this._DataSource.getRepository(UserSessionEntity);
@@ -141,5 +146,25 @@ export class AuthService {
     } catch (error) {
       throw new Error(`Error updating session: ${error.message}`);
     }
+  }
+
+  public async verifyOtp({ otp, userId }: { otp: string; userId: string }) {
+    const redisKey = registrationOtpKey(userId);
+    const orignalOtp = await this._redisClient.get(redisKey);
+    if (orignalOtp !== otp) {
+      throw new Error("Invalid Otp");
+    }
+    const updatedUser = await this._userService.findByIdAndUpdate(userId, {
+      isVerifiedEmail: true,
+    });
+    if (updatedUser) {
+      const kafka = kafkaWrapper.client;
+      const emailVerifiedSuccessfullyPublisher =
+        new EmailVerifiedSuccessfullyPublisher(kafka);
+      await emailVerifiedSuccessfullyPublisher.publish({
+        message: "Email Verified Successfully",
+      });
+    }
+    return updatedUser;
   }
 }

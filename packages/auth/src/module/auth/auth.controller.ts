@@ -67,6 +67,38 @@ class AuthController {
     }
   };
 
+  public verifyEmailAddressViaOtp = async (req: Request, res: Response) => {
+    try {
+      if (!req.user) {
+        res.sendForbidden403Response("Unauthorized", {});
+        return;
+      }
+      const user = await this._authService.verifyOtp({
+        otp: req.body.otp,
+        userId: req.user.id,
+      });
+      if (!user) {
+        res.sendBadRequest400Response("Invalid Otp", {});
+      } else {
+        const payload: CreateSessionType = {
+          user,
+          ip:
+            req.ip ??
+            (req.headers["X-Forwarded-For"]
+              ? req.headers["X-Forwarded-For"][0]
+              : ""),
+          userAgent: req.headers["user-agent"] ?? "",
+        };
+        const { accessToken, refreshToken } =
+          await this._authService.createSession(payload);
+        res.sendCreated201Response("Otp Verified successfully", {
+          accessToken,
+          refreshToken,
+        });
+      }
+    } catch (error) {}
+  };
+
   public refreshAccessTokenViaRefreshToken = async (
     req: Request,
     res: Response,

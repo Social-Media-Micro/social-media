@@ -16,3 +16,7 @@ export const createUserSessionBodyValidator = Joi.object({
 export const refreshAccessTokenViaRefreshTokenBodyValidator = Joi.object({
   refreshToken: Joi.string().required(),
 });
+
+export const verifyEmailAddressViaOtpBodyValidator = Joi.object({
+  otp: Joi.string().required(),
+});

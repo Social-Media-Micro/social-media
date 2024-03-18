@@ -15,8 +15,8 @@ import { InvalidRefreshTokenError, SessionExpiredError } from "./auth.errors";
 import { UserNotFound } from "../user/user.errors";
 import registrationOtpKey from "@monorepo/common/src/redisKey/registrationOtp";
 import redisConnect from "../../utils/redisConnection";
-import { kafkaWrapper } from "src/kafkaWrapper";
-import { EmailVerifiedSuccessfullyPublisher } from "src/events/email-verified-successfully";
+import { kafkaWrapper } from "../../kafkaWrapper";
+import { EmailVerifiedSuccessfullyPublisher } from "../../events/email-verified-successfully";
 
 export class AuthService {
   private readonly _jwtService = new JwtService();

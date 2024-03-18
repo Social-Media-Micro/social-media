@@ -5,7 +5,8 @@ class RedisConnect {
   private readonly _client: RedisClientType;
   constructor() {
     this._client = createClient({
-      url: "redis://192.168.29.64:6379",
+      url: "redis://203.190.153.26:6379",
+      password: "4F7vj1N4tsDkKs",
     });
 
     this._client.on("error", (err) => {

@@ -1,4 +1,4 @@
-import { type Topics } from "./topics";
+import { Topics } from "./topics";
 import { type Kafka, type Producer } from "kafkajs";
 import logger from "../utils/logger";
 import { ulid } from "ulid";
@@ -25,14 +25,22 @@ export abstract class Publisher<T extends Event> {
     }
   }
 
-  async createTopic(topic: Topics) {
+  async createTopic() {
     const admin = this.client.admin();
     try {
       await admin.connect();
-      await admin.createTopics({
-        topics: [{ topic, numPartitions: 2 }],
-      });
-      logger.info("Created Topic successfully");
+      const a = [
+        Topics.EmailVerified,
+        Topics.SendRegistrationOtp,
+        Topics.UserCreated,
+        Topics.UserUpdated,
+      ];
+      for (let i = 0; i < 4; i++) {
+        await admin.createTopics({
+          topics: [{ topic: a[i], numPartitions: 2 }],
+        });
+        logger.info("Created Topic successfully");
+      }
     } catch (error) {
       logger.error("Error creating topic:", error);
     } finally {

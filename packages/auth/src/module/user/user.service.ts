@@ -66,6 +66,7 @@ export class UserService {
     // publish event
     const kafka = kafkaWrapper.client;
     const createUserPublisher = new UserCreatedPublisher(kafka);
+    await createUserPublisher.createTopic();
     await createUserPublisher.publish({
       id: newUser.id,
       firstName: user.firstName,

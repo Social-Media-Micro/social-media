@@ -25,3 +25,7 @@ export interface JwtRefreshTokenClaims
 export interface JwtAccessTokenClaims
   extends JwtAccessTokenPayload,
     JwtPayload {}
+
+export interface ForgetPasswordTokenPayload {
+  email: string;
+}

@@ -3,6 +3,7 @@ import {
   createUserBodyValidator,
   createUserSessionBodyValidator,
   refreshAccessTokenViaRefreshTokenBodyValidator,
+  sendForgetPasswordLinkBodyValidator,
   verifyEmailAddressViaOtpBodyValidator,
 } from "./auth.schema";
 import AuthController from "./auth.controller";
@@ -29,6 +30,13 @@ authRoute.put(
   joiValidator.validate(refreshAccessTokenViaRefreshTokenBodyValidator, "body"),
   authController.refreshAccessTokenViaRefreshToken,
 );
+
+authRoute.post(
+  "/send-forget-password-link",
+  joiValidator.validate(sendForgetPasswordLinkBodyValidator, "body"),
+  authController.sendForgetPasswordLink,
+);
+
 authRoute.put("/logout", authMiddleware.protect, authController.logout);
 authRoute.put(
   "/verify-email-address-via-otp",
@@ -36,5 +44,4 @@ authRoute.put(
   joiValidator.validate(verifyEmailAddressViaOtpBodyValidator, "body"),
   authController.verifyEmailAddressViaOtp,
 );
-
 export default authRoute;

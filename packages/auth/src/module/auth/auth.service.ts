@@ -4,6 +4,7 @@ import {
   type JwtAccessTokenPayload,
   type JwtRefreshTokenPayload,
   type JwtAccessTokenClaims,
+  type ForgetPasswordTokenPayload,
 } from "./auth.types";
 import { UserSessionEntity } from "../../entity/userSessionEntity";
 import db from "../../utils/dbConnection";
@@ -166,5 +167,19 @@ export class AuthService {
       });
     }
     return updatedUser;
+  }
+
+  public async generateForgetPasswordToken({ email }: { email: string }) {
+    const user = this._userService.findOneWithOptions({ email });
+    if (!user) {
+      return null;
+    }
+    const forgetPasswordToken: ForgetPasswordTokenPayload = {
+      email,
+    };
+    const token = this._jwtService.sign(forgetPasswordToken, {
+      expiresIn: process.env.JWT_FORGET_PASSWORD_TOKEN_TTL,
+    });
+    return token;
   }
 }

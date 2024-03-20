@@ -3,4 +3,5 @@ export enum Topics {
   UserUpdated = "user-updated",
   SendRegistrationOtp = "send-registration-otp",
   EmailVerified = "email-verified",
+  ForgetPasswordLinkEmail = "forget-password-link-email",
 }

@@ -41,6 +41,11 @@ spec:
                 secretKeyRef:
                   name: my-secret
                   key: JWT_REFRESH_TOKEN_TTL
+            - name: JWT_FORGET_PASSWORD_TOKEN_TTL
+              valueFrom:
+                secretKeyRef:
+                  name: my-secret
+                  key: JWT_FORGET_PASSWORD_TOKEN_TTL
             - name: DB_HOST
               value: "auth-postgres-srv"
             - name: DB_PORT

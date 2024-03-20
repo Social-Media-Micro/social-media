@@ -4,6 +4,8 @@ import { UserService } from "../user/user.service";
 import { UserDto } from "../../dto/user.dto";
 import { AuthService } from "./auth.service";
 import { type CreateSessionType } from "./auth.types";
+import { kafkaWrapper } from "../../kafkaWrapper";
+import { SendForgetPasswordLink } from "../../events/send-forget-password-link";
 
 class AuthController {
   private readonly _userService: UserService = new UserService();
@@ -130,6 +132,22 @@ class AuthController {
         .status(400)
         .send({ message: "Error logging out user", error: error.message });
     }
+  };
+
+  public sendForgetPasswordLink = async (req: Request, res: Response) => {
+    const { email } = req.body;
+    const token = await this._authService.generateForgetPasswordToken({
+      email,
+    });
+    if (token) {
+      const kafka = kafkaWrapper.client;
+      const sendForgetPasswordLinkPublisher = new SendForgetPasswordLink(kafka);
+      await sendForgetPasswordLinkPublisher.publish({ token });
+    }
+    res.sendSuccess200Response(
+      "Email sent if account is existed in our database",
+      {},
+    );
   };
 }
 

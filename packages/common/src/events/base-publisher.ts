@@ -29,15 +29,10 @@ export abstract class Publisher<T extends Event> {
     const admin = this.client.admin();
     try {
       await admin.connect();
-      const a = [
-        Topics.EmailVerified,
-        Topics.SendRegistrationOtp,
-        Topics.UserCreated,
-        Topics.UserUpdated,
-      ];
-      for (let i = 0; i < 4; i++) {
+      const allTopics = Object.values(Topics);
+      for (let i = 0; i < allTopics.length; i++) {
         await admin.createTopics({
-          topics: [{ topic: a[i], numPartitions: 2 }],
+          topics: [{ topic: allTopics[i], numPartitions: 2 }],
         });
         logger.info("Created Topic successfully");
       }
@@ -50,6 +45,7 @@ export abstract class Publisher<T extends Event> {
 
   async publish(data: T["data"]): Promise<void> {
     try {
+      await this.createTopic();
       await this.createProducer(this.client);
       const producer = this.producer;
       const key = ulid();

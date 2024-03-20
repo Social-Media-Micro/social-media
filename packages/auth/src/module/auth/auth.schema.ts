@@ -20,3 +20,6 @@ export const refreshAccessTokenViaRefreshTokenBodyValidator = Joi.object({
 export const verifyEmailAddressViaOtpBodyValidator = Joi.object({
   otp: Joi.string().required(),
 });
+export const sendForgetPasswordLinkBodyValidator = Joi.object({
+  email: Joi.string().email().required(),
+});

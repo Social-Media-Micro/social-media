@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: post-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: post
+  template:
+    metadata:
+      labels:
+        app: post
+    spec:
+      containers:
+        - name: post
+          image: artripathi/post
+          env:
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: my-secret
+                  key: POSTGRES_USER
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: my-secret
+                  key: POSTGRES_PASSWORD
+            - name: JWT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: my-secret
+                  key: JWT_KEY
+            - name: JWT_ACCESS_TOKEN_TTL
+              valueFrom:
+                secretKeyRef:
+                  name: my-secret
+                  key: JWT_ACCESS_TOKEN_TTL
+            - name: DB_HOST
+              value: "post-postgres-srv"
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_DATABASE
+              value: "postgres"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: post-srv
+spec:
+  selector:
+    app: post
+  ports:
+    - name: post
+      protocol: TCP
+      port: 8080
+      targetPort: 8080

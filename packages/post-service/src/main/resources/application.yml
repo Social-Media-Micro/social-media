@@ -1,0 +1,19 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: post-service
+  datasource:
+    url: jdbc:postgresql://post-postgres-srv:5432/postgres
+    username: auth-depl
+    password: q8AD0J7n2BuAVTK
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+  flyway:
+    schemas: post_service
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+

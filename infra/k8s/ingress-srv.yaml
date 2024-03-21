@@ -17,4 +17,12 @@ spec:
                 name: auth-srv
                 port:
                   number: 4000
+          - path: /api/post-service/?(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: post-srv
+                port:
+                  number: 8080
+
 

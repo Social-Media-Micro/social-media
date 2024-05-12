@@ -98,7 +98,9 @@ class AuthController {
           refreshToken,
         });
       }
-    } catch (error) {}
+    } catch (error) {
+      res.sendErrorResponse("Error creating user session", error);
+    }
   };
 
   public refreshAccessTokenViaRefreshToken = async (
@@ -128,9 +130,9 @@ class AuthController {
       await this._authService.logoutSession(req.sessionId);
       res.status(200).send({ message: "User logout successfully" });
     } catch (error) {
-      res
-        .status(400)
-        .send({ message: "Error logging out user", error: error.message });
+      res.sendBadRequest400Response("Error logging out user", {
+        error: error.message,
+      });
     }
   };
 
@@ -148,6 +150,35 @@ class AuthController {
       "Email sent if account is existed in our database",
       {},
     );
+  };
+
+  public resetPasswordFromToken = async (req: Request, res: Response) => {
+    try {
+      const { token } = req.params;
+      const { newPassword } = req.body;
+
+      const forgetPasswordPayload =
+        await this._authService.verfiyForgetPasswordToken(token);
+      const updatedUser = await this._userService.findOneAndUpdate(
+        {
+          email: forgetPasswordPayload.email,
+        },
+        {
+          password: newPassword as string,
+        },
+      );
+      if (updatedUser) {
+        res.sendSuccess200Response("Password updated successfully", {});
+        return;
+      }
+      res.sendBadRequest400Response("User not found", {});
+    } catch (error) {
+      if (error.statusCode) {
+        res.sendBadRequest400Response("Invlaid Token", error.message);
+      } else {
+        res.sendErrorResponse("Internal Server error", {});
+      }
+    }
   };
 }
 

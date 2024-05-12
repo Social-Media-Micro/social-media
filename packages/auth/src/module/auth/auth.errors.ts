@@ -10,3 +10,9 @@ export class SessionExpiredError extends BaseError {
     super(400, "Session already expired");
   }
 }
+
+export class InvalidForgetPasswordTokenError extends BaseError {
+  constructor() {
+    super(400, "Invalid Forget Password Token");
+  }
+}

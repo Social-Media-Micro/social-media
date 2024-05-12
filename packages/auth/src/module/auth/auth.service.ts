@@ -12,7 +12,11 @@ import { type FindOptionsWhere } from "typeorm";
 import JwtService from "@monorepo/common/src/utils/jwt";
 import { UserService } from "../user/user.service";
 import { type UserEntity } from "../../entity/userEntity";
-import { InvalidRefreshTokenError, SessionExpiredError } from "./auth.errors";
+import {
+  InvalidForgetPasswordTokenError,
+  InvalidRefreshTokenError,
+  SessionExpiredError,
+} from "./auth.errors";
 import { UserNotFound } from "../user/user.errors";
 import registrationOtpKey from "@monorepo/common/src/redisKey/registrationOtp";
 import redisConnect from "../../utils/redisConnection";
@@ -181,5 +185,14 @@ export class AuthService {
       expiresIn: process.env.JWT_FORGET_PASSWORD_TOKEN_TTL,
     });
     return token;
+  }
+
+  public async verfiyForgetPasswordToken(token: string) {
+    const decoded: ForgetPasswordTokenPayload | null =
+      (this._jwtService.verify(token) as ForgetPasswordTokenPayload) || null;
+    if (!decoded) {
+      throw new InvalidForgetPasswordTokenError();
+    }
+    return decoded;
   }
 }

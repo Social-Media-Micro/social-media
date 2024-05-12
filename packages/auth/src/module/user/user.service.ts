@@ -36,6 +36,18 @@ export class UserService {
     return null;
   }
 
+  public async findOneAndUpdate(
+    filter: FindOptionsWhere<UserEntity>,
+    body: Partial<UserEntity>,
+  ) {
+    const user = await this._userRepository.findOneBy(filter);
+    if (user) {
+      await this._userRepository.update(filter, body);
+      return await this._userRepository.findOneBy({ id: user.id });
+    }
+    return null;
+  }
+
   public async create(
     user: UserDto,
     isVerifiedEmail: boolean = false,

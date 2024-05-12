@@ -1,0 +1,6 @@
+configurations
+entities
+    model folder will have all other model not mapped in tables
+repository
+exceptionHandler
+external service calls
